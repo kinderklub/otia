@@ -10,6 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Playpen+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- Load Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Load jsPDF for Instant Clinical PDF Extraction -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root {
       --p-pink: #ff68bd;
@@ -186,6 +188,75 @@
       <div class="flex justify-end gap-3">
         <button type="button" onclick="closeDeleteRecordModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm">Cancel</button>
         <button type="button" onclick="confirmDeleteRecord()" class="px-5 py-2.5 rounded-xl bg-rose-600 text-white font-bold text-sm shadow-md hover:opacity-95">Yes, Delete Record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Save to Google Drive Modal -->
+  <div id="gdrive-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border-t-8 border-p-blue space-y-4">
+      <div class="flex items-center justify-between gap-2 border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="w-10 h-10 rounded-2xl bg-sky-50 border-2 border-p-blue flex items-center justify-center shrink-0">
+            <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+              <path d="M10.5 5h7l7 12-3.5 6h-14L3.5 17l7-12Z" fill="#ffffff" stroke="#0f172a" stroke-width="1.6" stroke-linejoin="round"/>
+              <path d="M10.5 5h7l7 12h-7l-7-12Z" fill="#facc15" stroke="#0f172a" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M3.5 17h14l3.5 6h-14L3.5 17Z" fill="#07bdff" stroke="#0f172a" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M10.5 5 14 11 7 23 3.5 17 10.5 5Z" fill="#00c69e" stroke="#0f172a" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <div>
+            <h3 class="text-base sm:text-lg font-extrabold text-slate-900">Save OTIA Note to Google Drive</h3>
+            <p id="gdrive-filename-label" class="text-xs font-bold text-p-blue">OTIA_Note.pdf</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeGoogleDriveModal()" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs">
+          Close
+        </button>
+      </div>
+
+      <p class="text-xs sm:text-sm text-slate-600">
+        Your OTIA PDF has been prepared and the full note text is copied to your clipboard. Choose how you want to save it to Google Drive:
+      </p>
+
+      <div class="space-y-2.5">
+        <button type="button" onclick="sharePDFToGoogleDrive()" class="w-full px-4 py-3 rounded-2xl bg-p-teal text-white font-extrabold text-xs sm:text-sm shadow-md hover:opacity-95 transition flex items-center justify-center gap-2">
+          <svg width="20" height="20" viewBox="0 0 28 28" class="w-5 h-5 shrink-0" fill="none">
+            <circle cx="20" cy="7" r="3.2" fill="#facc15" stroke="#0f172a" stroke-width="1.6"/>
+            <circle cx="8" cy="14" r="3.2" fill="#ff68bd" stroke="#0f172a" stroke-width="1.6"/>
+            <circle cx="20" cy="21" r="3.2" fill="#07bdff" stroke="#0f172a" stroke-width="1.6"/>
+            <path d="M10.8 12.4 17.2 8.6M10.8 15.6l6.4 3.8" stroke="#0f172a" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span>Share PDF Directly to Google Drive App (iPad / Mobile)</span>
+        </button>
+
+        <button type="button" onclick="downloadPDFAndOpenDrive()" class="w-full px-4 py-3 rounded-2xl bg-p-blue text-white font-extrabold text-xs sm:text-sm shadow-md hover:opacity-95 transition flex items-center justify-center gap-2">
+          <svg width="20" height="20" viewBox="0 0 28 28" class="w-5 h-5 shrink-0" fill="none">
+            <path d="M10.5 5h7l7 12-3.5 6h-14L3.5 17l7-12Z" fill="#ffffff" stroke="#0f172a" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M10.5 5h7l7 12h-7l-7-12Z" fill="#facc15" stroke="#0f172a" stroke-width="1.5"/>
+            <path d="M3.5 17h14l3.5 6h-14L3.5 17Z" fill="#38bdf8" stroke="#0f172a" stroke-width="1.5"/>
+            <path d="M10.5 5 14 11 7 23 3.5 17 10.5 5Z" fill="#34d399" stroke="#0f172a" stroke-width="1.5"/>
+          </svg>
+          <span>Download PDF &amp; Open Google Drive (PC / Browser)</span>
+        </button>
+
+        <button type="button" onclick="openNewGoogleDocWithNote()" class="w-full px-4 py-2.5 rounded-2xl bg-p-yellow text-slate-900 font-extrabold text-xs sm:text-sm shadow-sm hover:brightness-105 transition flex items-center justify-center gap-2">
+          <svg width="20" height="20" viewBox="0 0 28 28" class="w-5 h-5 shrink-0" fill="none">
+            <path d="M7 4.5h9l5 5v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-17a2 2 0 0 1 2-2Z" fill="#ffffff" stroke="#0f172a" stroke-width="1.8"/>
+            <path d="M9 13.5h10M9 17h10M9 20.5h6" stroke="#0284c7" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span>Create New Google Doc (Auto-Copied — Just Paste)</span>
+        </button>
+      </div>
+
+      <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
+        <label class="block text-[11px] font-extrabold uppercase text-slate-700">Optional: Your Custom OTIA Google Drive Folder Link</label>
+        <div class="flex gap-2">
+          <input type="text" id="gdrive-folder-url" onchange="saveCustomDriveFolderUrl(this.value)" placeholder="https://drive.google.com/drive/folders/..." class="flex-1 px-3 py-1.5 rounded-xl border border-slate-300 bg-white focus:border-p-blue focus:outline-none text-xs" />
+          <button type="button" onclick="saveCustomDriveFolderUrl(document.getElementById('gdrive-folder-url').value, true)" class="px-3 py-1.5 rounded-xl bg-slate-900 text-white font-bold text-xs">
+            Save Link
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -1438,17 +1509,38 @@
         <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pb-4 border-b border-slate-200">
           <div>
             <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">Compiled Occupational Therapy Initial Assessment (OTIA) Note</h2>
-            <p class="text-xs sm:text-sm text-slate-600">Ready to copy and paste directly into your clinical documentation / EMR system.</p>
+            <p class="text-xs sm:text-sm text-slate-600">Ready to copy, extract as PDF, or save directly to Google Drive.</p>
           </div>
-          <div class="flex flex-wrap gap-2.5">
-            <button type="button" onclick="syncAllAssessments()" class="px-4 py-2.5 rounded-xl bg-p-yellow text-slate-900 font-extrabold text-xs sm:text-sm shadow-sm hover:brightness-105 transition">
-              Sync Scored Assessments Only
+          <div class="flex flex-wrap gap-2">
+            <button type="button" onclick="syncAllAssessments()" class="px-3.5 py-2.5 rounded-xl bg-p-yellow text-slate-900 font-extrabold text-xs sm:text-sm shadow-sm hover:brightness-105 transition flex items-center gap-1.5">
+              <svg width="18" height="18" viewBox="0 0 28 28" class="w-4 h-4 shrink-0" fill="none"><path d="M15.8 3.5 7 15.5h6.5L12 24.5 21 12.5h-6.5l1.3-9Z" fill="#fd7a39" stroke="#0f172a" stroke-width="1.8" stroke-linejoin="round"/></svg>
+              <span>Sync Scored Only</span>
             </button>
-            <button type="button" onclick="saveCurrentPatientRecord()" class="px-4 py-2.5 rounded-xl bg-p-blue text-white font-extrabold text-xs sm:text-sm shadow-sm hover:opacity-95 transition">
-              Save Record
+            <button type="button" onclick="saveCurrentPatientRecord()" class="px-3.5 py-2.5 rounded-xl bg-p-blue text-white font-extrabold text-xs sm:text-sm shadow-sm hover:opacity-95 transition flex items-center gap-1.5">
+              <svg width="18" height="18" viewBox="0 0 28 28" class="w-4 h-4 shrink-0" fill="none"><path d="M20.5 21H9.5a6.5 6.5 0 1 1 5.8-9.4A5 5 0 1 1 20.5 21Z" fill="#ffffff" stroke="#0f172a" stroke-width="1.8" stroke-linejoin="round"/></svg>
+              <span>Save Record</span>
             </button>
-            <button type="button" onclick="copyOTIANote()" class="px-5 py-2.5 rounded-xl bg-p-pink text-white font-extrabold text-xs sm:text-sm shadow-md hover:opacity-95 transition">
-              Copy Full OTIA Note
+            <button type="button" onclick="extractOTIAAsPDF()" class="px-4 py-2.5 rounded-xl bg-p-orange text-white font-extrabold text-xs sm:text-sm shadow-md hover:opacity-95 transition flex items-center gap-1.5">
+              <svg width="20" height="20" viewBox="0 0 28 28" class="w-5 h-5 shrink-0" fill="none">
+                <path d="M7 4h9l5 5v15a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" fill="#ffffff" stroke="#0f172a" stroke-width="1.8" stroke-linejoin="round"/>
+                <path d="M16 4v5h5" fill="#facc15" stroke="#0f172a" stroke-width="1.6" stroke-linejoin="round"/>
+                <rect x="6.5" y="14" width="15" height="7" rx="2" fill="#e11d48" stroke="#0f172a" stroke-width="1.3"/>
+                <path d="M9.5 19v-3h1.3a1 1 0 0 1 0 2H9.5M13.5 19v-3h1.1a1.5 1.5 0 0 1 0 3h-1.1M17.8 19v-3h1.8M17.8 17.5h1.3" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Extract as PDF</span>
+            </button>
+            <button type="button" onclick="openGoogleDriveModal()" class="px-4 py-2.5 rounded-xl bg-p-teal text-white font-extrabold text-xs sm:text-sm shadow-md hover:opacity-95 transition flex items-center gap-1.5">
+              <svg width="20" height="20" viewBox="0 0 28 28" class="w-5 h-5 shrink-0" fill="none">
+                <path d="M10.5 5h7l7 12-3.5 6h-14L3.5 17l7-12Z" fill="#ffffff" stroke="#0f172a" stroke-width="1.6" stroke-linejoin="round"/>
+                <path d="M10.5 5h7l7 12h-7l-7-12Z" fill="#facc15" stroke="#0f172a" stroke-width="1.5" stroke-linejoin="round"/>
+                <path d="M3.5 17h14l3.5 6h-14L3.5 17Z" fill="#38bdf8" stroke="#0f172a" stroke-width="1.5" stroke-linejoin="round"/>
+                <path d="M10.5 5 14 11 7 23 3.5 17 10.5 5Z" fill="#a6e23d" stroke="#0f172a" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+              <span>Save to Google Drive</span>
+            </button>
+            <button type="button" onclick="copyOTIANote()" class="px-4 py-2.5 rounded-xl bg-p-pink text-white font-extrabold text-xs sm:text-sm shadow-md hover:opacity-95 transition flex items-center gap-1.5">
+              <svg width="20" height="20" viewBox="0 0 28 28" class="w-5 h-5 shrink-0" fill="none"><rect x="5" y="4.5" width="18" height="20" rx="3.5" fill="#facc15" stroke="#0f172a" stroke-width="1.8"/><rect x="7.5" y="7" width="13" height="15" rx="2" fill="#ffffff" stroke="#0f172a" stroke-width="1.4"/><path d="M10.5 12h7M10.5 15.5h7M10.5 19h4.5" stroke="#ff68bd" stroke-width="1.8" stroke-linecap="round"/></svg>
+              <span>Copy Full OTIA Note</span>
             </button>
           </div>
         </div>
@@ -5250,6 +5342,222 @@ Occupational Therapist`;
     }
 
     // =========================================================
+    // EXTRACT AS PDF & SAVE TO GOOGLE DRIVE
+    // =========================================================
+    function getOTIAPdfFilename() {
+      const rawName = (document.getElementById('pt_name').value || 'Client').trim();
+      const cleanName = rawName.replace(/[^a-zA-Z0-9_-]+/g, '_').replace(/^_+|_+$/g, '') || 'Client';
+      const dateStr = document.getElementById('pt_date').value || new Date().toISOString().split('T')[0];
+      return `OTIA_${cleanName}_${dateStr}.pdf`;
+    }
+
+    function buildOTIAPdfBlob() {
+      updateOTIAOutput();
+      const noteText = document.getElementById('final-otia-textarea').value || '';
+      const ptName = document.getElementById('pt_name').value.trim() || 'Not specified';
+      const ptMrn = document.getElementById('pt_mrn').value.trim() || 'Not specified';
+      const ptAge = document.getElementById('pt_age').value.trim() || 'Not specified';
+      const ptDate = document.getElementById('pt_date').value || new Date().toISOString().split('T')[0];
+      const ptDx = document.getElementById('pt_dx').value.trim() || 'Not specified';
+      const therapist = document.getElementById('e_therapist').value.trim() || 'OT Ezlyana';
+
+      if (window.jspdf && window.jspdf.jsPDF) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 14;
+        const usableWidth = pageWidth - margin * 2;
+
+        // Top Clinical Header Banner
+        doc.setFillColor(15, 23, 42);
+        doc.roundedRect(margin, 12, usableWidth, 20, 3, 3, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(13);
+        doc.text('OCCUPATIONAL THERAPY INITIAL ASSESSMENT (OTIA)', margin + 5, 20.5);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(167, 243, 208);
+        doc.text(`Client: ${ptName}  |  IC/MRN: ${ptMrn}  |  Date: ${ptDate}  |  Assessed by: ${therapist}`, margin + 5, 27.5);
+
+        // Quick Patient Summary Strip
+        doc.setFillColor(241, 245, 249);
+        doc.roundedRect(margin, 35, usableWidth, 12, 2, 2, 'F');
+        doc.setTextColor(30, 41, 59);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8.5);
+        const dxLine = doc.splitTextToSize(`Age/DOB: ${ptAge}   |   Diagnosis: ${ptDx}`, usableWidth - 8)[0];
+        doc.text(dxLine, margin + 4, 42.5);
+
+        // Body Content (skip the ASCII header block since we rendered a styled banner)
+        const bodyStartIdx = noteText.indexOf('B. CLIENT HISTORY');
+        const mainContent = bodyStartIdx !== -1 ? noteText.slice(bodyStartIdx) : noteText;
+
+        let cursorY = 54;
+        const rawLines = mainContent.split('\n');
+
+        rawLines.forEach((rawLine) => {
+          const isSectionHeading = /^[A-E]\.\s+[A-Z]/.test(rawLine.trim()) || rawLine.startsWith('Assessed & Documented by:');
+          if (isSectionHeading) {
+            cursorY += 2;
+            if (cursorY > pageHeight - 20) {
+              doc.addPage();
+              cursorY = 16;
+            }
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(10);
+            doc.setTextColor(2, 132, 199);
+            doc.text(rawLine.trim(), margin, cursorY);
+            cursorY += 5.5;
+            return;
+          }
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(9.2);
+          doc.setTextColor(30, 41, 59);
+
+          const wrapped = doc.splitTextToSize(rawLine === '' ? ' ' : rawLine, usableWidth);
+          wrapped.forEach((wLine) => {
+            if (cursorY > pageHeight - 18) {
+              doc.addPage();
+              cursorY = 16;
+            }
+            doc.text(wLine, margin, cursorY);
+            cursorY += 4.6;
+          });
+        });
+
+        // Page Footer Numbers
+        const totalPages = doc.internal.getNumberOfPages();
+        for (let p = 1; p <= totalPages; p++) {
+          doc.setPage(p);
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(100, 116, 139);
+          doc.text(`OTIA Clinical Note — ${ptName} (${ptDate})`, margin, pageHeight - 8);
+          doc.text(`Page ${p} of ${totalPages}`, pageWidth - margin - 18, pageHeight - 8);
+        }
+
+        return doc.output('blob');
+      }
+
+      // Fallback plain text blob if jsPDF CDN is offline
+      return new Blob([noteText], { type: 'application/pdf' });
+    }
+
+    function triggerBlobDownload(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+    }
+
+    function extractOTIAAsPDF() {
+      const filename = getOTIAPdfFilename();
+      const blob = buildOTIAPdfBlob();
+      triggerBlobDownload(blob, filename);
+      showToast(`Extracted PDF: ${filename}`, 'bg-p-orange');
+    }
+
+    function openGoogleDriveModal() {
+      updateOTIAOutput();
+      // Copy compiled text silently so user can paste if creating a Google Doc
+      const textarea = document.getElementById('final-otia-textarea');
+      textarea.select();
+      textarea.setSelectionRange(0, 99999);
+      try { document.execCommand('copy'); } catch {}
+
+      const filename = getOTIAPdfFilename();
+      const lbl = document.getElementById('gdrive-filename-label');
+      if (lbl) lbl.innerText = filename;
+
+      const folderInput = document.getElementById('gdrive-folder-url');
+      if (folderInput) {
+        try {
+          folderInput.value = localStorage.getItem('otia_gdrive_folder_url') || '';
+        } catch {}
+      }
+
+      const modal = document.getElementById('gdrive-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function closeGoogleDriveModal() {
+      const modal = document.getElementById('gdrive-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function saveCustomDriveFolderUrl(url, notify = false) {
+      const cleaned = (url || '').trim();
+      try {
+        localStorage.setItem('otia_gdrive_folder_url', cleaned);
+      } catch {}
+      if (notify) {
+        showToast('Google Drive folder link saved!', 'bg-p-teal');
+      }
+    }
+
+    async function sharePDFToGoogleDrive() {
+      const filename = getOTIAPdfFilename();
+      const blob = buildOTIAPdfBlob();
+      const pdfFile = new File([blob], filename, { type: 'application/pdf' });
+
+      if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+        try {
+          await navigator.share({
+            files: [pdfFile],
+            title: filename,
+            text: 'Occupational Therapy Initial Assessment (OTIA) Note'
+          });
+          showToast('Shared PDF via device Share Sheet!', 'bg-p-teal');
+          closeGoogleDriveModal();
+          return;
+        } catch (err) {
+          if (err && err.name === 'AbortError') return;
+        }
+      }
+
+      // Fallback on desktop PC where file Share Sheet isn't supported
+      downloadPDFAndOpenDrive();
+    }
+
+    function downloadPDFAndOpenDrive() {
+      const filename = getOTIAPdfFilename();
+      const blob = buildOTIAPdfBlob();
+      triggerBlobDownload(blob, filename);
+
+      let targetUrl = 'https://drive.google.com/drive/my-drive';
+      try {
+        const savedUrl = (localStorage.getItem('otia_gdrive_folder_url') || '').trim();
+        if (savedUrl && /^https?:\/\//i.test(savedUrl)) {
+          targetUrl = savedUrl;
+        }
+      } catch {}
+
+      window.open(targetUrl, '_blank', 'noopener,noreferrer');
+      showToast('PDF downloaded & Google Drive opened!', 'bg-p-blue');
+      closeGoogleDriveModal();
+    }
+
+    function openNewGoogleDocWithNote() {
+      copyOTIANote();
+      window.open('https://docs.new', '_blank', 'noopener,noreferrer');
+      showToast('Google Doc opened — press Paste (Ctrl+V / Cmd+V)!', 'bg-p-teal');
+      closeGoogleDriveModal();
+    }
+
+    // =========================================================
     // APPLE PENCIL / STYLUS HANDWRITING RECOGNITION SYSTEM
     // =========================================================
     const hwState = {
@@ -5728,7 +6036,14 @@ Occupational Therapist`;
       insertDASSToNote,
       syncAllAssessments,
       updateOTIAOutput,
-      copyOTIANote
+      copyOTIANote,
+      extractOTIAAsPDF,
+      openGoogleDriveModal,
+      closeGoogleDriveModal,
+      sharePDFToGoogleDrive,
+      downloadPDFAndOpenDrive,
+      openNewGoogleDocWithNote,
+      saveCustomDriveFolderUrl
     });
 
     function initApp() {
