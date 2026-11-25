@@ -1022,7 +1022,26 @@
         </div>
 
         <div id="pain-display-card" class="rounded-3xl p-6 sm:p-8 border-2 border-slate-200 bg-gradient-to-br from-slate-50 to-pink-50/40 transition-all">
+          <!-- 3 Phase Selector Tabs: Pre, During, Post -->
+          <div class="grid grid-cols-3 gap-2 sm:gap-3 w-full max-w-2xl mx-auto mb-6">
+            <button type="button" id="pain-phase-pre" onclick="setPainPhase('pre')" class="p-2.5 sm:p-3 rounded-2xl border-2 border-slate-900 bg-p-blue text-white font-extrabold text-xs sm:text-sm shadow-sm transition flex flex-col items-center">
+              <span>Pre-Session</span>
+              <span id="pain-phase-pre-val" class="text-[11px] font-black opacity-90 mt-0.5">-- / 10</span>
+            </button>
+            <button type="button" id="pain-phase-during" onclick="setPainPhase('during')" class="p-2.5 sm:p-3 rounded-2xl border-2 border-slate-200 bg-white text-slate-700 font-bold text-xs sm:text-sm transition flex flex-col items-center">
+              <span>During Session</span>
+              <span id="pain-phase-during-val" class="text-[11px] font-black text-slate-500 mt-0.5">-- / 10</span>
+            </button>
+            <button type="button" id="pain-phase-post" onclick="setPainPhase('post')" class="p-2.5 sm:p-3 rounded-2xl border-2 border-slate-200 bg-white text-slate-700 font-bold text-xs sm:text-sm transition flex flex-col items-center">
+              <span>Post-Session</span>
+              <span id="pain-phase-post-val" class="text-[11px] font-black text-slate-500 mt-0.5">-- / 10</span>
+            </button>
+          </div>
+
           <div class="flex flex-col items-center text-center">
+            <div id="pain-active-phase-tag" class="px-3 py-1 rounded-full bg-slate-900 text-white text-xs font-extrabold uppercase tracking-wider mb-2">
+              Recording: Pre-Session Pain
+            </div>
             <div id="pain-svg-wrapper" class="w-36 h-36 sm:w-44 sm:h-44 flex items-center justify-center mb-3 drop-shadow-md transition-transform duration-200"></div>
             <div class="flex items-center gap-3 mb-1">
               <span id="pain-score-big" class="text-4xl sm:text-5xl font-black text-slate-900">--</span>
@@ -1435,15 +1454,16 @@
               <span>Mark Untestable (Refusals)</span>
             </label>
             <button type="button" onclick="clearDenver(false)" class="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-bold">
-              Clear All
+              Clear
             </button>
           </div>
         </div>
 
         <div id="denver-domains-container" class="space-y-5"></div>
 
-        <div class="mt-6 p-4 rounded-2xl bg-slate-50 border border-slate-200">
-          <h3 class="text-sm font-extrabold uppercase text-slate-800 mb-3">Denver II Test Behavior Observations (Optional)</h3>
+        <!-- Test Behavior Box -->
+        <div class="mt-6 p-4 rounded-2xl bg-purple-50/40 border border-purple-200">
+          <h3 class="font-extrabold text-sm sm:text-base text-slate-900 mb-3">Test Behavior Observations (Optional)</h3>
           <div id="denver-behavior-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3"></div>
         </div>
       </div>
@@ -1456,12 +1476,12 @@
       <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border-t-8 border-p-orange">
         <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pb-4 border-b border-slate-200">
           <div>
-            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">DASS-21 (Saringan Minda Sihat — BM / EN)</h2>
-            <p class="text-xs sm:text-sm text-slate-600">Bermula kosong. 0 = Tidak Langsung | 1 = Sedikit/Jarang | 2 = Banyak/Kerap | 3 = Sangat Banyak (tekan semula untuk buang).</p>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">DASS-21 — Saringan Minda Sihat (BM / EN)</h2>
+            <p class="text-xs sm:text-sm text-slate-600">Pilih <strong>Full 21 Questions</strong> atau <strong>Therapist Version (Quick Score)</strong> untuk masukkan jumlah skor terus.</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <button type="button" onclick="clearDASS(false)" class="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs">
-              Clear All
+              Clear
             </button>
             <button type="button" onclick="insertDASSToNote()" class="px-4 py-3 rounded-xl bg-p-orange text-white font-extrabold text-xs sm:text-sm shadow-md hover:opacity-95 transition">
               Insert Result to OTIA
@@ -1469,11 +1489,45 @@
           </div>
         </div>
 
-        <div class="mb-4 p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-2">
-          <span class="text-xs font-bold text-slate-700 uppercase">Kaedah Pengiraan Skor:</span>
-          <div class="flex gap-2">
-            <button type="button" id="dass-mode-kkm" onclick="setDASSMode('kkm')" class="px-3.5 py-1.5 rounded-lg bg-p-orange text-white text-xs font-extrabold shadow-sm">KKM Saringan Minda Sihat (Skor Mentah 0–21)</button>
-            <button type="button" id="dass-mode-std" onclick="setDASSMode('std')" class="px-3.5 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-bold">Standard DASS-21 (Darab 2: 0–42)</button>
+        <div class="mb-4 p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs font-bold text-slate-700 uppercase">Mod Pengisian:</span>
+            <div class="flex gap-1.5">
+              <button type="button" id="dass-entry-full" onclick="setDASSEntryMode('full')" class="px-3 py-1.5 rounded-lg bg-p-purple text-white text-xs font-extrabold shadow-sm">Full 21 Questions</button>
+              <button type="button" id="dass-entry-therapist" onclick="setDASSEntryMode('therapist')" class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-bold">Therapist Version (Quick Score)</button>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs font-bold text-slate-700 uppercase">Kaedah Skor:</span>
+            <div class="flex gap-1.5">
+              <button type="button" id="dass-mode-kkm" onclick="setDASSMode('kkm')" class="px-3 py-1.5 rounded-lg bg-p-orange text-white text-xs font-extrabold shadow-sm">KKM SMS (0–21)</button>
+              <button type="button" id="dass-mode-std" onclick="setDASSMode('std')" class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-bold">Standard (×2: 0–42)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Therapist Version Quick Direct Score Input Box -->
+        <div id="dass-therapist-box" class="hidden mb-5 p-4 rounded-2xl bg-purple-50/70 border-2 border-p-purple space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="text-sm sm:text-base font-extrabold text-slate-900">Therapist Version — Direct Domain Score Entry</h3>
+              <p class="text-xs text-slate-600">Masukkan jumlah skor terus daripada borang hardcopy klien (tahap keterukan dikira automatik).</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="p-3 rounded-xl bg-white border border-orange-200">
+              <label class="block text-xs font-extrabold text-p-orange uppercase mb-1">Skor Stres (0 – <span class="dass-max-lbl">21</span>)</label>
+              <input type="number" id="dass-quick-s" min="0" max="42" oninput="updateDASSQuickScore('S', this.value)" placeholder="e.g. 8" class="w-full px-3 py-2 rounded-xl border-2 border-slate-200 focus:border-p-orange focus:outline-none text-base font-black text-slate-900" />
+            </div>
+            <div class="p-3 rounded-xl bg-white border border-pink-200">
+              <label class="block text-xs font-extrabold text-p-pink uppercase mb-1">Skor Keresahan (0 – <span class="dass-max-lbl">21</span>)</label>
+              <input type="number" id="dass-quick-a" min="0" max="42" oninput="updateDASSQuickScore('A', this.value)" placeholder="e.g. 6" class="w-full px-3 py-2 rounded-xl border-2 border-slate-200 focus:border-p-pink focus:outline-none text-base font-black text-slate-900" />
+            </div>
+            <div class="p-3 rounded-xl bg-white border border-purple-200">
+              <label class="block text-xs font-extrabold text-p-purple uppercase mb-1">Skor Kemurungan (0 – <span class="dass-max-lbl">21</span>)</label>
+              <input type="number" id="dass-quick-d" min="0" max="42" oninput="updateDASSQuickScore('D', this.value)" placeholder="e.g. 5" class="w-full px-3 py-2 rounded-xl border-2 border-slate-200 focus:border-p-purple focus:outline-none text-base font-black text-slate-900" />
+            </div>
           </div>
         </div>
 
@@ -1575,7 +1629,8 @@
       dominantSide: '',
       maritalStatus: '',
       socialStatus: '',
-      painScore: null,
+      painPhase: 'pre',
+      painScores: { pre: null, during: null, post: null },
       painTheme: 'colorful',
       mbiMobilityMode: 'walk',
       occStatus: {},
@@ -1588,6 +1643,8 @@
       denverUntestable: false,
       denverBehavior: {},
       dassMode: 'kkm',
+      dassEntryMode: 'full',
+      dassQuickScores: { S: null, A: null, D: null },
       dassAnswers: Array(21).fill(null),
       currentRecordId: null,
       savedRecords: [],
@@ -2364,55 +2421,104 @@
         card.className = 'rounded-3xl p-6 sm:p-8 border-2 border-slate-200 bg-gradient-to-br from-slate-50 to-pink-50/40 text-slate-900 transition-all';
         document.getElementById('pain-score-big').className = 'text-4xl sm:text-5xl font-black text-slate-900';
       }
-      if (state.painScore !== null) {
-        updatePainScale(state.painScore);
-      } else {
-        renderPainBlankState();
+      renderPainUI();
+    }
+
+    function setPainPhase(phase) {
+      state.painPhase = phase;
+      renderPainUI();
+    }
+
+    function updatePainPhaseTabs() {
+      const phases = [
+        { key: 'pre', title: 'Pre-Session', activeBg: 'bg-p-blue' },
+        { key: 'during', title: 'During Session', activeBg: 'bg-p-orange' },
+        { key: 'post', title: 'Post-Session', activeBg: 'bg-p-teal' }
+      ];
+      phases.forEach(p => {
+        const btn = document.getElementById(`pain-phase-${p.key}`);
+        const valEl = document.getElementById(`pain-phase-${p.key}-val`);
+        const sc = state.painScores[p.key];
+        const isActive = state.painPhase === p.key;
+
+        if (valEl) {
+          valEl.innerText = sc !== null ? `${sc} / 10` : '-- / 10';
+          valEl.className = isActive
+            ? 'text-[11px] font-black opacity-95 mt-0.5'
+            : (sc !== null ? 'text-[11px] font-extrabold text-p-pink mt-0.5' : 'text-[11px] font-bold text-slate-500 mt-0.5');
+        }
+        if (btn) {
+          btn.className = isActive
+            ? `p-2.5 sm:p-3 rounded-2xl border-2 border-slate-900 ${p.activeBg} text-white font-extrabold text-xs sm:text-sm shadow-md transition flex flex-col items-center`
+            : 'p-2.5 sm:p-3 rounded-2xl border-2 border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition flex flex-col items-center';
+        }
+      });
+
+      const phaseLabels = { pre: 'Pre-Session', during: 'During Session', post: 'Post-Session' };
+      const tagEl = document.getElementById('pain-active-phase-tag');
+      if (tagEl) tagEl.innerText = `Recording: ${phaseLabels[state.painPhase]} Pain`;
+
+      const navBadge = document.getElementById('badge-pain');
+      if (navBadge) {
+        const parts = [];
+        if (state.painScores.pre !== null) parts.push(`Pre:${state.painScores.pre}`);
+        if (state.painScores.during !== null) parts.push(`Dur:${state.painScores.during}`);
+        if (state.painScores.post !== null) parts.push(`Post:${state.painScores.post}`);
+        navBadge.innerText = parts.length ? parts.join(' ') : '--/10';
       }
     }
 
-    function renderPainBlankState() {
-      document.getElementById('pain-slider').value = 0;
-      document.getElementById('pain-score-big').innerText = '--';
-      document.getElementById('badge-pain').innerText = '--/10';
-      const badge = document.getElementById('pain-label-badge');
-      badge.innerText = 'Not Scored — Tap number or slide below';
-      badge.style.backgroundColor = '#e2e8f0';
-      badge.style.color = '#334155';
-      document.getElementById('pain-svg-wrapper').innerHTML = generatePainFaceSVG(0, state.painTheme, 155);
+    function renderPainUI() {
+      updatePainPhaseTabs();
+      const curScore = state.painScores[state.painPhase];
+      if (curScore === null || curScore === undefined) {
+        document.getElementById('pain-slider').value = 0;
+        document.getElementById('pain-score-big').innerText = '--';
+        const badge = document.getElementById('pain-label-badge');
+        badge.innerText = 'Not Scored — Tap number or slide below';
+        badge.style.backgroundColor = '#e2e8f0';
+        badge.style.color = '#334155';
+        document.getElementById('pain-svg-wrapper').innerHTML = generatePainFaceSVG(0, state.painTheme, 155);
+      } else {
+        document.getElementById('pain-slider').value = curScore;
+        document.getElementById('pain-score-big').innerText = curScore;
+        const info = painDescriptors[curScore];
+        const badge = document.getElementById('pain-label-badge');
+        badge.innerText = info.label;
+        badge.style.backgroundColor = info.color;
+        badge.style.color = info.textDark ? '#0f172a' : '#ffffff';
+        document.getElementById('pain-svg-wrapper').innerHTML = generatePainFaceSVG(curScore, state.painTheme, 155);
+      }
       renderPainPresets();
     }
 
+    function renderPainBlankState() {
+      state.painPhase = 'pre';
+      state.painScores = { pre: null, during: null, post: null };
+      renderPainUI();
+    }
+
     function clearPainScale(silent = false) {
-      state.painScore = null;
+      state.painScores = { pre: null, during: null, post: null };
+      state.painPhase = 'pre';
       document.getElementById('pain_location').value = '';
       document.getElementById('pain_quality').value = '';
-      renderPainBlankState();
-      if (!silent) showToast('Pain Scale cleared', 'bg-p-pink');
+      renderPainUI();
+      if (!silent) showToast('Pain Scale (Pre/During/Post) cleared', 'bg-p-pink');
     }
 
     function updatePainScale(val) {
       const score = parseInt(val, 10) || 0;
-      state.painScore = score;
-      document.getElementById('pain-slider').value = score;
-      document.getElementById('pain-score-big').innerText = score;
-      document.getElementById('badge-pain').innerText = `${score}/10`;
-
-      const info = painDescriptors[score];
-      const badge = document.getElementById('pain-label-badge');
-      badge.innerText = info.label;
-      badge.style.backgroundColor = info.color;
-      badge.style.color = info.textDark ? '#0f172a' : '#ffffff';
-
-      document.getElementById('pain-svg-wrapper').innerHTML = generatePainFaceSVG(score, state.painTheme, 155);
-      renderPainPresets();
+      state.painScores[state.painPhase] = score;
+      renderPainUI();
     }
 
     function renderPainPresets() {
+      const curScore = state.painScores[state.painPhase];
       const numContainer = document.getElementById('pain-number-buttons');
       let numHtml = '';
       for (let i = 0; i <= 10; i++) {
-        const isCur = state.painScore !== null && state.painScore === i;
+        const isCur = curScore !== null && curScore === i;
         let btnClass = '';
         if (state.painTheme === 'kkm') {
           btnClass = isCur
@@ -2437,7 +2543,7 @@
       ];
       const presetContainer = document.getElementById('pain-face-presets');
       presetContainer.innerHTML = presetScores.map(p => {
-        const activeRing = (state.painScore !== null && (state.painScore === p.s || (p.s < 10 && state.painScore === p.s + 1)))
+        const activeRing = (curScore !== null && (curScore === p.s || (p.s < 10 && curScore === p.s + 1)))
           ? 'ring-2 ring-offset-2 ring-p-pink bg-white/95 text-slate-900'
           : (state.painTheme === 'kkm' ? 'bg-white/15 text-white hover:bg-white/25' : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200');
         return `
@@ -2450,11 +2556,16 @@
     }
 
     function getPainFormattedString() {
-      if (state.painScore === null) return '';
-      const info = painDescriptors[state.painScore];
+      const { pre, during, post } = state.painScores;
+      const entries = [];
+      if (pre !== null) entries.push(`Pre: ${pre}/10 (${painDescriptors[pre].label.split('—')[1].trim()})`);
+      if (during !== null) entries.push(`During: ${during}/10 (${painDescriptors[during].label.split('—')[1].trim()})`);
+      if (post !== null) entries.push(`Post: ${post}/10 (${painDescriptors[post].label.split('—')[1].trim()})`);
+      if (entries.length === 0) return '';
+
       const loc = document.getElementById('pain_location').value.trim();
       const qual = document.getElementById('pain_quality').value.trim();
-      let str = `Pain Scale (NRS/Faces): ${state.painScore}/10 (${info.label.split('—')[1].trim()})`;
+      let str = `Pain Scale (NRS/Faces): ${entries.join(' | ')}`;
       if (loc) str += ` | Location: ${loc}`;
       if (qual) str += ` | Quality: ${qual}`;
       return str;
@@ -4573,14 +4684,45 @@
     function setDASSMode(mode) {
       state.dassMode = mode;
       document.getElementById('dass-mode-kkm').className = mode === 'kkm'
-        ? 'px-3.5 py-1.5 rounded-lg bg-p-orange text-white text-xs font-extrabold shadow-sm'
-        : 'px-3.5 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-bold';
+        ? 'px-3 py-1.5 rounded-lg bg-p-orange text-white text-xs font-extrabold shadow-sm'
+        : 'px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-bold';
       document.getElementById('dass-mode-std').className = mode === 'std'
-        ? 'px-3.5 py-1.5 rounded-lg bg-p-orange text-white text-xs font-extrabold shadow-sm'
-        : 'px-3.5 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-bold';
+        ? 'px-3 py-1.5 rounded-lg bg-p-orange text-white text-xs font-extrabold shadow-sm'
+        : 'px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-bold';
       document.querySelectorAll('.dass-max-lbl').forEach(el => {
         el.innerText = mode === 'kkm' ? '21' : '42';
       });
+      calcDASS();
+    }
+
+    function setDASSEntryMode(entryMode) {
+      state.dassEntryMode = entryMode;
+      const btnFull = document.getElementById('dass-entry-full');
+      const btnTher = document.getElementById('dass-entry-therapist');
+      const therBox = document.getElementById('dass-therapist-box');
+      const qList = document.getElementById('dass-items-container');
+
+      if (entryMode === 'therapist') {
+        btnTher.className = 'px-3 py-1.5 rounded-lg bg-p-purple text-white text-xs font-extrabold shadow-sm';
+        btnFull.className = 'px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-bold';
+        if (therBox) therBox.classList.remove('hidden');
+        if (qList) qList.classList.add('hidden');
+      } else {
+        btnFull.className = 'px-3 py-1.5 rounded-lg bg-p-purple text-white text-xs font-extrabold shadow-sm';
+        btnTher.className = 'px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-bold';
+        if (therBox) therBox.classList.add('hidden');
+        if (qList) qList.classList.remove('hidden');
+      }
+      calcDASS();
+    }
+
+    function updateDASSQuickScore(cat, val) {
+      if (val === '' || val === null || val === undefined) {
+        state.dassQuickScores[cat] = null;
+      } else {
+        const num = Math.max(0, parseInt(val, 10) || 0);
+        state.dassQuickScores[cat] = num;
+      }
       calcDASS();
     }
 
@@ -4627,6 +4769,11 @@
 
     function clearDASS(silent = false) {
       state.dassAnswers = Array(21).fill(null);
+      state.dassQuickScores = { S: null, A: null, D: null };
+      ['dass-quick-s', 'dass-quick-a', 'dass-quick-d'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
       renderDASS();
       if (!silent) showToast('DASS-21 answers cleared', 'bg-p-orange');
     }
@@ -4654,6 +4801,60 @@
     }
 
     function calcDASS() {
+      const mult = state.dassMode === 'std' ? 2 : 1;
+      const maxScore = 21 * mult;
+
+      if (state.dassEntryMode === 'therapist') {
+        const qS = state.dassQuickScores.S;
+        const qA = state.dassQuickScores.A;
+        const qD = state.dassQuickScores.D;
+
+        if (qS === null && qA === null && qD === null) {
+          document.getElementById('dass-s-score').innerText = '--';
+          document.getElementById('dass-a-score').innerText = '--';
+          document.getElementById('dass-d-score').innerText = '--';
+          ['dass-s-level', 'dass-a-level', 'dass-d-level'].forEach(id => {
+            const el = document.getElementById(id);
+            el.innerText = 'Belum Dinilai';
+            el.style.backgroundColor = '#e2e8f0';
+            el.style.color = '#334155';
+          });
+          document.getElementById('badge-dass').innerText = '--';
+          return { hasData: false, dispS: null, dispA: null, dispD: null, maxScore, lvS: null, lvA: null, lvD: null };
+        }
+
+        const updateQuickCard = (cat, val, scoreId, levelId) => {
+          const scoreEl = document.getElementById(scoreId);
+          const lvlEl = document.getElementById(levelId);
+          if (val === null) {
+            scoreEl.innerText = '--';
+            lvlEl.innerText = 'Belum Dinilai';
+            lvlEl.style.backgroundColor = '#e2e8f0';
+            lvlEl.style.color = '#334155';
+            return null;
+          }
+          const rawEquiv = state.dassMode === 'std' ? Math.round(val / 2) : val;
+          const lv = getDASSLevel(cat, rawEquiv);
+          scoreEl.innerText = val;
+          lvlEl.innerText = lv.label;
+          lvlEl.style.backgroundColor = lv.bg;
+          lvlEl.style.color = lv.dark ? '#0f172a' : '#ffffff';
+          return lv;
+        };
+
+        const lvS = updateQuickCard('S', qS, 'dass-s-score', 'dass-s-level');
+        const lvA = updateQuickCard('A', qA, 'dass-a-score', 'dass-a-level');
+        const lvD = updateQuickCard('D', qD, 'dass-d-score', 'dass-d-level');
+
+        const badgeParts = [];
+        if (qS !== null) badgeParts.push(`S:${qS}`);
+        if (qA !== null) badgeParts.push(`K:${qA}`);
+        if (qD !== null) badgeParts.push(`D:${qD}`);
+        document.getElementById('badge-dass').innerText = badgeParts.join(' ');
+
+        return { hasData: true, dispS: qS, dispA: qA, dispD: qD, maxScore, lvS, lvA, lvD };
+      }
+
       const answeredCount = state.dassAnswers.filter(v => v !== null).length;
       if (answeredCount === 0) {
         document.getElementById('dass-s-score').innerText = '--';
@@ -4679,11 +4880,9 @@
         else if (item.cat === 'D') rawD += val;
       });
 
-      const mult = state.dassMode === 'std' ? 2 : 1;
       const dispS = rawS * mult;
       const dispA = rawA * mult;
       const dispD = rawD * mult;
-      const maxScore = 21 * mult;
 
       const lvS = getDASSLevel('S', rawS);
       const lvA = getDASSLevel('A', rawA);
@@ -4715,7 +4914,12 @@
       const { hasData, dispS, dispA, dispD, maxScore, lvS, lvA, lvD } = calcDASS();
       if (!hasData) return '';
       const scaleTag = state.dassMode === 'kkm' ? 'KKM Saringan Minda Sihat' : 'DASS-21 Standard';
-      return `DASS-21 (${scaleTag}): Stres ${dispS}/${maxScore} (${lvS.label}), Keresahan ${dispA}/${maxScore} (${lvA.label}), Kemurungan ${dispD}/${maxScore} (${lvD.label})`;
+      const parts = [];
+      if (dispS !== null && lvS) parts.push(`Stres ${dispS}/${maxScore} (${lvS.label})`);
+      if (dispA !== null && lvA) parts.push(`Keresahan ${dispA}/${maxScore} (${lvA.label})`);
+      if (dispD !== null && lvD) parts.push(`Kemurungan ${dispD}/${maxScore} (${lvD.label})`);
+      if (parts.length === 0) return '';
+      return `DASS-21 (${scaleTag}): ${parts.join(', ')}`;
     }
 
     function insertDASSToNote() {
@@ -4775,7 +4979,6 @@
       const ptName = document.getElementById('pt_name').value.trim();
       const ptMrn = document.getElementById('pt_mrn').value.trim();
       const ptAge = document.getElementById('pt_age').value.trim();
-      const ptDate = document.getElementById('pt_date').value.trim();
       const ptPhone = document.getElementById('pt_phone').value.trim();
       const ptReferral = document.getElementById('pt_referral').value.trim();
       const ptAddress = document.getElementById('pt_address').value.trim();
@@ -4787,12 +4990,16 @@
 
       const sections = [];
 
-      // Section A
+      // Diagnosis right at the very top
+      if (ptDx) {
+        sections.push(`Diagnosis: ${ptDx}`);
+      }
+
+      // Section A (No Date)
       const secALines = [];
       if (ptName) secALines.push(`- Client Name    : ${ptName}`);
       if (ptMrn) secALines.push(`- NRIC / MRN     : ${ptMrn}`);
       if (ptAge) secALines.push(`- Age / DOB      : ${ptAge}`);
-      if (ptDate) secALines.push(`- Date           : ${ptDate}`);
       if (ptGender) secALines.push(`- Gender         : ${ptGender}`);
       if (ptPhone) secALines.push(`- Contact No.    : ${ptPhone}`);
       if (ptReferral) secALines.push(`- Referral From  : ${ptReferral}`);
@@ -4801,7 +5008,6 @@
       if (ptAffected) sideParts.push(`Affected Side: ${ptAffected}`);
       if (ptDominant) sideParts.push(`Dominant Side: ${ptDominant}`);
       if (sideParts.length) secALines.push(`- ${sideParts.join(' | ')}`);
-      if (ptDx) secALines.push(`- Diagnosis      : ${ptDx}`);
       if (ptPrecautions) secALines.push(`- Precautions    : ${ptPrecautions}`);
 
       if (secALines.length) {
@@ -4887,7 +5093,6 @@
       const eStg = document.getElementById('e_stg').value.trim();
       const eLtg = document.getElementById('e_ltg').value.trim();
       const ePlan = document.getElementById('e_plan').value.trim();
-      const eTherapist = document.getElementById('e_therapist').value.trim();
 
       const secELines = [];
       if (ePhysical) secELines.push(`- Physical / Motor Observations      : ${ePhysical}`);
@@ -4905,10 +5110,6 @@
 
       if (secELines.length) {
         sections.push(`E. ADDITIONAL NOTES, CLINICAL SCREENING & INITIAL PLAN\n${secELines.join('\n')}`);
-      }
-
-      if (eTherapist) {
-        sections.push(`Assessed & Documented by: ${eTherapist}`);
       }
 
       const finalOut = document.getElementById('final-otia-textarea');
@@ -4967,7 +5168,7 @@
         const rawLines = noteText.split('\n');
 
         rawLines.forEach((rawLine) => {
-          const isSectionHeading = /^[A-E]\.\s+[A-Z]/.test(rawLine.trim()) || rawLine.startsWith('Assessed & Documented by:');
+          const isSectionHeading = /^[A-E]\.\s+[A-Z]/.test(rawLine.trim()) || rawLine.startsWith('Diagnosis:');
           if (isSectionHeading) {
             cursorY += 2;
             if (cursorY > pageHeight - 20) {
@@ -5301,7 +5502,7 @@
         eLtg: document.getElementById('e_ltg').value.trim(),
         ePlan: document.getElementById('e_plan').value.trim(),
         eTherapist: document.getElementById('e_therapist').value.trim(),
-        painScore: state.painScore,
+        painScoresJson: JSON.stringify(state.painScores),
         painLocation: document.getElementById('pain_location').value.trim(),
         painQuality: document.getElementById('pain_quality').value.trim(),
         mbiMobilityMode: state.mbiMobilityMode,
@@ -5323,6 +5524,8 @@
         denverUntestable: state.denverUntestable,
         denverBehaviorJson: JSON.stringify(state.denverBehavior),
         dassMode: state.dassMode,
+        dassEntryMode: state.dassEntryMode,
+        dassQuickScoresJson: JSON.stringify(state.dassQuickScores),
         dassAnswersJson: JSON.stringify(state.dassAnswers),
         compiledNote: document.getElementById('final-otia-textarea').value,
         updatedAt: new Date().toISOString()
@@ -5411,26 +5614,26 @@
 
       document.getElementById('d_prio1').value = rec.dPrio1 || '';
       document.getElementById('d_prio2').value = rec.dPrio2 || '';
-      document.getElementById('d_prio3').value = rec.dPrio3 || '';
-      const feSet = new Set(rec.feChecked || []);
-      document.querySelectorAll('.fe-cb').forEach(cb => { cb.checked = feSet.has(cb.value); });
-
-      document.getElementById('e_physical').value = rec.ePhysical || '';
-      document.getElementById('e_psychosocial').value = rec.ePsychosocial || '';
-      try { state.handSkills = JSON.parse(rec.handSkillsJson || '{}'); } catch { state.handSkills = {}; }
-      renderHandSkills();
-
-      document.getElementById('e_tests').value = rec.eTests || '';
-      document.getElementById('e_stg').value = rec.eStg || '';
-      document.getElementById('e_ltg').value = rec.eLtg || '';
-      document.getElementById('e_plan').value = rec.ePlan || '';
-      document.getElementById('e_therapist').value = rec.eTherapist || 'OT Ezlyana';
-
-      // Restore Pain Scale
+      // Restore Pain Scale (supports Pre/During/Post & legacy single score)
       document.getElementById('pain_location').value = rec.painLocation || '';
       document.getElementById('pain_quality').value = rec.painQuality || '';
-      if (rec.painScore !== null && rec.painScore !== undefined) {
-        updatePainScale(rec.painScore);
+      if (rec.painScoresJson) {
+        try {
+          const parsed = JSON.parse(rec.painScoresJson);
+          state.painScores = {
+            pre: parsed.pre ?? null,
+            during: parsed.during ?? null,
+            post: parsed.post ?? null
+          };
+        } catch {
+          state.painScores = { pre: null, during: null, post: null };
+        }
+        state.painPhase = 'pre';
+        renderPainUI();
+      } else if (rec.painScore !== null && rec.painScore !== undefined) {
+        state.painScores = { pre: rec.painScore, during: null, post: null };
+        state.painPhase = 'pre';
+        renderPainUI();
       } else {
         clearPainScale(true);
       }
@@ -5564,11 +5767,21 @@
 
       // Restore DASS-21
       state.dassMode = rec.dassMode || 'kkm';
+      state.dassEntryMode = rec.dassEntryMode || 'full';
+      try { state.dassQuickScores = JSON.parse(rec.dassQuickScoresJson || '{"S":null,"A":null,"D":null}'); } catch { state.dassQuickScores = { S: null, A: null, D: null }; }
+      const qSInp = document.getElementById('dass-quick-s');
+      const qAInp = document.getElementById('dass-quick-a');
+      const qDInp = document.getElementById('dass-quick-d');
+      if (qSInp) qSInp.value = state.dassQuickScores.S ?? '';
+      if (qAInp) qAInp.value = state.dassQuickScores.A ?? '';
+      if (qDInp) qDInp.value = state.dassQuickScores.D ?? '';
+
       try { state.dassAnswers = JSON.parse(rec.dassAnswersJson || '[]'); } catch { state.dassAnswers = Array(21).fill(null); }
       if (!Array.isArray(state.dassAnswers) || state.dassAnswers.length !== 21) {
         state.dassAnswers = Array(21).fill(null);
       }
       setDASSMode(state.dassMode);
+      setDASSEntryMode(state.dassEntryMode);
       renderDASS();
 
       updateOTIAOutput();
@@ -6145,6 +6358,7 @@
       updateHandSkillNote,
       clearHandSkills,
       setPainTheme,
+      setPainPhase,
       updatePainScale,
       clearPainScale,
       insertPainToHistory,
@@ -6187,6 +6401,8 @@
       clearDenver,
       insertDenverToNote,
       setDASSMode,
+      setDASSEntryMode,
+      updateDASSQuickScore,
       selectDASSAnswer,
       clearDASS,
       insertDASSToNote,
