@@ -2558,17 +2558,17 @@
     function getPainFormattedString() {
       const { pre, during, post } = state.painScores;
       const entries = [];
-      if (pre !== null) entries.push(`Pre: ${pre}/10 (${painDescriptors[pre].label.split('—')[1].trim()})`);
-      if (during !== null) entries.push(`During: ${during}/10 (${painDescriptors[during].label.split('—')[1].trim()})`);
-      if (post !== null) entries.push(`Post: ${post}/10 (${painDescriptors[post].label.split('—')[1].trim()})`);
+      if (pre !== null) entries.push(`Pre: ${pre}/10`);
+      if (during !== null) entries.push(`During: ${during}/10`);
+      if (post !== null) entries.push(`Post: ${post}/10`);
       if (entries.length === 0) return '';
 
       const loc = document.getElementById('pain_location').value.trim();
       const qual = document.getElementById('pain_quality').value.trim();
-      let str = `Pain Scale (NRS/Faces): ${entries.join(' | ')}`;
-      if (loc) str += ` | Location: ${loc}`;
-      if (qual) str += ` | Quality: ${qual}`;
-      return str;
+      const lines = [`Pain Scale: ${entries.join(', ')}`];
+      if (loc) lines.push(`  - Location: ${loc}`);
+      if (qual) lines.push(`  - Quality: ${qual}`);
+      return lines.join('\n');
     }
 
     function insertPainToHistory() {
@@ -2577,8 +2577,9 @@
         showToast('Please tap a pain level (0–10) first!', 'bg-p-orange');
         return;
       }
+      const cleanOneLine = line.replace(/\n\s*-\s*/g, ', ');
       const field = document.getElementById('b_pain');
-      field.value = field.value.trim() ? `${field.value.trim()}; ${line}` : line;
+      field.value = field.value.trim() ? `${field.value.trim()}; ${cleanOneLine}` : cleanOneLine;
       updateOTIAOutput();
       showToast('Pain Scale inserted into Section B!', 'bg-p-purple');
     }
@@ -2793,8 +2794,11 @@
     function getMBIFormattedString() {
       const { hasData, total, interp, scoredItems } = calcMBI();
       if (!hasData) return '';
-      const parts = scoredItems.map(i => `${i.label.split(' (')[0]}: ${i.selected}/${i.max}`).join(', ');
-      return `Modified Barthel Index (Shah): ${total}/100 (${interp}) [${parts}]`;
+      const lines = [`Modified Barthel Index (Shah): ${total}/100 - ${interp}`];
+      scoredItems.forEach(i => {
+        lines.push(`  - ${i.label.split(' (')[0]}: ${i.selected}/${i.max}`);
+      });
+      return lines.join('\n');
     }
 
     function insertMBIToNote() {
@@ -2953,8 +2957,11 @@
     function getIADLFormattedString() {
       const { hasData, total, max, interp, scoredDomains } = calcIADL();
       if (!hasData) return '';
-      const parts = scoredDomains.map(d => `${d.label}: ${d.options[d.selectedIdx].score}/1`).join(', ');
-      return `Lawton-Brody IADL Scale: ${total}/${max} (${interp}) [${parts}]`;
+      const lines = [`Lawton-Brody IADL Scale: ${total}/${max} - ${interp}`];
+      scoredDomains.forEach(d => {
+        lines.push(`  - ${d.label}: ${d.options[d.selectedIdx].score}/1`);
+      });
+      return lines.join('\n');
     }
 
     function insertIADLToNote() {
@@ -3103,7 +3110,11 @@
     function getMMSEFormattedString() {
       const { hasData, total, interp, subScores } = calcMMSE();
       if (!hasData) return '';
-      return `Mini-Mental State Examination (MMSE): ${total}/30 (${interp}) [${subScores.join(', ')}]`;
+      const lines = [`Mini-Mental State Examination (MMSE): ${total}/30 - ${interp}`];
+      subScores.forEach(s => {
+        lines.push(`  - ${s}`);
+      });
+      return lines.join('\n');
     }
 
     function insertMMSEToNote() {
@@ -3329,7 +3340,13 @@
     function getFMAFormattedString() {
       const { hasData, total, interp, scores } = calcFMA();
       if (!hasData) return '';
-      return `Fugl-Meyer Upper Extremity (FMA-UE): ${total}/66 (${interp}) [Shoulder/Elbow/Forearm: ${scores.A}/36, Wrist: ${scores.B}/10, Hand: ${scores.C}/14, Coordination/Speed: ${scores.D}/6]`;
+      return [
+        `Fugl-Meyer Upper Extremity (FMA-UE): ${total}/66 - ${interp}`,
+        `  - Shoulder/Elbow/Forearm: ${scores.A}/36`,
+        `  - Wrist: ${scores.B}/10`,
+        `  - Hand: ${scores.C}/14`,
+        `  - Coordination/Speed: ${scores.D}/6`
+      ].join('\n');
     }
 
     function insertFMAToNote() {
@@ -3528,8 +3545,18 @@
     function getMoCAFormattedString() {
       const { hasData, total, interp, v, n, a, l, ab, r, o } = calcMoCA();
       if (!hasData) return '';
-      const eduTxt = mocaData.eduBonus ? ', Education +1' : '';
-      return `Montreal Cognitive Assessment (MoCA 8.3): ${total}/30 (${interp}) [Visuospatial/Executive: ${v}/5, Naming: ${n}/3, Attention: ${a}/6, Language: ${l}/3, Abstraction: ${ab}/2, Delayed Recall: ${r}/5, Orientation: ${o}/6${eduTxt}]`;
+      const lines = [
+        `Montreal Cognitive Assessment (MoCA 8.3): ${total}/30 - ${interp}`,
+        `  - Visuospatial/Executive: ${v}/5`,
+        `  - Naming: ${n}/3`,
+        `  - Attention: ${a}/6`,
+        `  - Language: ${l}/3`,
+        `  - Abstraction: ${ab}/2`,
+        `  - Delayed Recall: ${r}/5`,
+        `  - Orientation: ${o}/6`
+      ];
+      if (mocaData.eduBonus) lines.push(`  - Education Adjustment: +1`);
+      return lines.join('\n');
     }
 
     function insertMoCAToNote() {
@@ -3720,8 +3747,18 @@
     function getMoCABMFormattedString() {
       const { hasData, total, interp, v, n, a, l, ab, r, o } = calcMoCABM();
       if (!hasData) return '';
-      const eduTxt = mocaBMData.eduBonus ? ', Pendidikan +1' : '';
-      return `MoCA (Bahasa Malaysia Version): ${total}/30 (${interp}) [Penghayatan Ruang/Eksekutif: ${v}/5, Penamaan: ${n}/3, Penumpuan: ${a}/6, Bahasa: ${l}/3, Pengabstrakan: ${ab}/2, Ingatan Tertunda: ${r}/5, Orientasi: ${o}/6${eduTxt}]`;
+      const lines = [
+        `MoCA (Bahasa Malaysia Version): ${total}/30 - ${interp}`,
+        `  - Penghayatan Ruang/Eksekutif: ${v}/5`,
+        `  - Penamaan: ${n}/3`,
+        `  - Penumpuan: ${a}/6`,
+        `  - Bahasa: ${l}/3`,
+        `  - Pengabstrakan: ${ab}/2`,
+        `  - Ingatan Tertunda: ${r}/5`,
+        `  - Orientasi: ${o}/6`
+      ];
+      if (mocaBMData.eduBonus) lines.push(`  - Pelarasan Pendidikan: +1`);
+      return lines.join('\n');
     }
 
     function insertMoCABMToNote() {
@@ -3848,22 +3885,25 @@
     function getPowerFormattedString() {
       const isBilateral = state.affectedSide === 'Bilateral';
       if (isBilateral) {
-        const list = [];
+        const lines = ['Muscle Power (MRC Scale - Bilateral):'];
         powerMuscles.forEach(m => {
           if (m.gradeR !== null || m.gradeL !== null) {
             const rTxt = m.gradeR !== null ? `R ${m.gradeR}/5` : '';
             const lTxt = m.gradeL !== null ? `L ${m.gradeL}/5` : '';
-            list.push(`${m.name}: ${[rTxt, lTxt].filter(Boolean).join(' | ')}`);
+            lines.push(`  - ${m.name}: ${[rTxt, lTxt].filter(Boolean).join(', ')}`);
           }
         });
-        if (list.length === 0) return '';
-        return `Muscle Power (MRC Scale — Bilateral): [${list.join(', ')}]`;
+        if (lines.length === 1) return '';
+        return lines.join('\n');
       } else {
         const scored = powerMuscles.filter(m => m.grade !== null);
         if (scored.length === 0) return '';
-        const sideTag = state.affectedSide ? ` — ${state.affectedSide} Affected` : '';
-        const list = scored.map(m => `${m.name}: ${m.grade}/5`).join(', ');
-        return `Muscle Power (MRC Scale${sideTag}): [${list}]`;
+        const sideTag = state.affectedSide ? ` - ${state.affectedSide} Affected` : '';
+        const lines = [`Muscle Power (MRC Scale${sideTag}):`];
+        scored.forEach(m => {
+          lines.push(`  - ${m.name}: ${m.grade}/5`);
+        });
+        return lines.join('\n');
       }
     }
 
@@ -3988,22 +4028,25 @@
     function getToneFormattedString() {
       const isBilateral = state.affectedSide === 'Bilateral';
       if (isBilateral) {
-        const list = [];
+        const lines = ['Muscle Tone (Modified Ashworth Scale - Bilateral):'];
         toneMuscles.forEach(m => {
           if (m.gradeR !== null || m.gradeL !== null) {
             const rTxt = m.gradeR !== null ? `R MAS ${m.gradeR}` : '';
             const lTxt = m.gradeL !== null ? `L MAS ${m.gradeL}` : '';
-            list.push(`${m.name}: ${[rTxt, lTxt].filter(Boolean).join(' | ')}`);
+            lines.push(`  - ${m.name}: ${[rTxt, lTxt].filter(Boolean).join(', ')}`);
           }
         });
-        if (list.length === 0) return '';
-        return `Muscle Tone (Modified Ashworth Scale — Bilateral): [${list.join(', ')}]`;
+        if (lines.length === 1) return '';
+        return lines.join('\n');
       } else {
         const scored = toneMuscles.filter(m => m.grade !== null);
         if (scored.length === 0) return '';
-        const sideTag = state.affectedSide ? ` — ${state.affectedSide} Affected` : '';
-        const list = scored.map(m => `${m.name}: MAS ${m.grade}`).join(', ');
-        return `Muscle Tone (Modified Ashworth Scale${sideTag}): [${list}]`;
+        const sideTag = state.affectedSide ? ` - ${state.affectedSide} Affected` : '';
+        const lines = [`Muscle Tone (Modified Ashworth Scale${sideTag}):`];
+        scored.forEach(m => {
+          lines.push(`  - ${m.name}: MAS ${m.grade}`);
+        });
+        return lines.join('\n');
       }
     }
 
@@ -4273,7 +4316,7 @@
             const sideStrings = [];
             if (partsR.length) sideStrings.push(`R: ${partsR.join(', ')}`);
             if (partsL.length) sideStrings.push(`L: ${partsL.join(', ')}`);
-            assessed.push(`${j.name} [${sideStrings.join(' | ')}]`);
+            assessed.push(`  - ${j.name}: ${sideStrings.join(' | ')}`);
           }
         } else {
           const parts = [];
@@ -4281,13 +4324,13 @@
           if (j.arom.trim()) parts.push(`AROM ${j.arom.trim()}`);
           if (j.prom.trim()) parts.push(`PROM ${j.prom.trim()}`);
           if (j.note.trim()) parts.push(j.note.trim());
-          if (parts.length) assessed.push(`${j.name}: ${parts.join(', ')}`);
+          if (parts.length) assessed.push(`  - ${j.name}: ${parts.join(', ')}`);
         }
       });
 
       if (assessed.length === 0) return '';
-      const sideTag = state.affectedSide ? ` — ${state.affectedSide}` : '';
-      return `Range of Motion (ROM${sideTag}): [${assessed.join('; ')}]`;
+      const sideTag = state.affectedSide ? ` - ${state.affectedSide}` : '';
+      return [`Range of Motion (ROM${sideTag}):`, ...assessed].join('\n');
     }
 
     function insertROMToNote() {
@@ -4617,19 +4660,25 @@
       const { totalScored, cAdv, cNorm, cCaution, cDelay, cNO, outcome } = calcDenver();
       if (totalScored === 0 && !state.denverUntestable) return '';
 
-      const domainParts = [];
+      const cleanOutcome = outcome.split(' (')[0];
+      const lines = [
+        `Denver II Developmental Screening: ${cleanOutcome}`,
+        `  - Summary: Delays ${cDelay}, Cautions ${cCaution}, Advanced ${cAdv}, Normal ${cNorm}, NO ${cNO}`
+      ];
+
       denverDomains.forEach(dom => {
         const flags = [];
         dom.items.forEach(it => {
           const code = state.denverScores[it.id];
-          if (code === 'D') flags.push(`${it.name} [Delay]`);
-          else if (code === 'C') flags.push(`${it.name} [Caution]`);
-          else if (code === 'P_ADV') flags.push(`${it.name} [Advanced]`);
-          else if (code === 'P_NORM' || code === 'FR_NORM') flags.push(`${it.name} [Normal]`);
-          else if (code === 'NO') flags.push(`${it.name} [NO]`);
+          if (code === 'D') flags.push(`${it.name} - Delay`);
+          else if (code === 'C') flags.push(`${it.name} - Caution`);
+          else if (code === 'P_ADV') flags.push(`${it.name} - Advanced`);
+          else if (code === 'P_NORM' || code === 'FR_NORM') flags.push(`${it.name} - Normal`);
+          else if (code === 'NO') flags.push(`${it.name} - NO`);
         });
         if (flags.length) {
-          domainParts.push(`${dom.title.split('. ')[1].split(' (')[0]}: ${flags.join(', ')}`);
+          const domName = dom.title.split('. ')[1].split(' (')[0];
+          lines.push(`  - ${domName}: ${flags.join(', ')}`);
         }
       });
 
@@ -4637,11 +4686,11 @@
       denverBehaviorItems.forEach(b => {
         if (state.denverBehavior[b.id]) behParts.push(`${b.title}: ${state.denverBehavior[b.id]}`);
       });
+      if (behParts.length) {
+        lines.push(`  - Test Behavior: ${behParts.join(', ')}`);
+      }
 
-      let str = `Denver II Developmental Screening: ${outcome} (Delays: ${cDelay}, Cautions: ${cCaution}, Advanced: ${cAdv}, Normal: ${cNorm}, NO: ${cNO})`;
-      if (domainParts.length) str += ` | Items: [${domainParts.join(' ; ')}]`;
-      if (behParts.length) str += ` | Test Behavior: [${behParts.join(', ')}]`;
-      return str;
+      return lines.join('\n');
     }
 
     function insertDenverToNote() {
@@ -4914,12 +4963,21 @@
       const { hasData, dispS, dispA, dispD, maxScore, lvS, lvA, lvD } = calcDASS();
       if (!hasData) return '';
       const scaleTag = state.dassMode === 'kkm' ? 'KKM Saringan Minda Sihat' : 'DASS-21 Standard';
-      const parts = [];
-      if (dispS !== null && lvS) parts.push(`Stres ${dispS}/${maxScore} (${lvS.label})`);
-      if (dispA !== null && lvA) parts.push(`Keresahan ${dispA}/${maxScore} (${lvA.label})`);
-      if (dispD !== null && lvD) parts.push(`Kemurungan ${dispD}/${maxScore} (${lvD.label})`);
-      if (parts.length === 0) return '';
-      return `DASS-21 (${scaleTag}): ${parts.join(', ')}`;
+      const lines = [`DASS-21 (${scaleTag}):`];
+      if (dispS !== null && lvS) {
+        const cleanLv = lvS.label.split(' (')[0];
+        lines.push(`  - Stres: ${dispS}/${maxScore} - ${cleanLv}`);
+      }
+      if (dispA !== null && lvA) {
+        const cleanLv = lvA.label.split(' (')[0];
+        lines.push(`  - Keresahan: ${dispA}/${maxScore} - ${cleanLv}`);
+      }
+      if (dispD !== null && lvD) {
+        const cleanLv = lvD.label.split(' (')[0];
+        lines.push(`  - Kemurungan: ${dispD}/${maxScore} - ${cleanLv}`);
+      }
+      if (lines.length === 1) return '';
+      return lines.join('\n');
     }
 
     function insertDASSToNote() {
@@ -4938,10 +4996,10 @@
     function appendToSectionETests(line) {
       if (!line) return;
       const field = document.getElementById('e_tests');
-      const prefix = line.split(':')[0];
-      const existingLines = field.value.split('\n').filter(l => l.trim() !== '');
-      const filtered = existingLines.filter(l => !l.startsWith('• ' + prefix));
-      filtered.push('• ' + line);
+      const header = line.split('\n')[0].split(':')[0].trim();
+      const blocks = field.value.split(/\n(?=- )/).filter(b => b.trim() !== '');
+      const filtered = blocks.filter(b => !b.startsWith('- ' + header));
+      filtered.push('- ' + line);
       field.value = filtered.join('\n');
       updateOTIAOutput();
     }
@@ -4967,7 +5025,7 @@
         return;
       }
 
-      document.getElementById('e_tests').value = candidates.map(c => '• ' + c).join('\n');
+      document.getElementById('e_tests').value = candidates.map(c => '- ' + c).join('\n');
       updateOTIAOutput();
       showToast(`Synced ${candidates.length} scored assessment(s) into Section E!`, 'bg-p-teal');
     }
@@ -5090,9 +5148,9 @@
       const ePsychosocial = document.getElementById('e_psychosocial').value.trim();
       const handSkillLines = getHandSkillsFormattedLines();
       const eTests = document.getElementById('e_tests').value.trim();
-      const eStg = document.getElementById('e_stg').value.trim();
-      const eLtg = document.getElementById('e_ltg').value.trim();
-      const ePlan = document.getElementById('e_plan').value.trim();
+      const eStg = (document.getElementById('e_stg')?.value || '').trim();
+      const eLtg = (document.getElementById('e_ltg')?.value || '').trim();
+      const ePlan = (document.getElementById('e_plan')?.value || '').trim();
 
       const secELines = [];
       if (ePhysical) secELines.push(`- Physical / Motor Observations      : ${ePhysical}`);
@@ -5106,10 +5164,10 @@
       }
       if (eStg) secELines.push(`- Short-Term Goals (STG)             : ${eStg}`);
       if (eLtg) secELines.push(`- Long-Term Goals (LTG)              : ${eLtg}`);
-      if (ePlan) secELines.push(`- Initial Intervention Plan          : ${ePlan}`);
+      if (ePlan) secELines.push(`- Intervention Plan & Frequency      : ${ePlan}`);
 
       if (secELines.length) {
-        sections.push(`E. ADDITIONAL NOTES, CLINICAL SCREENING & INITIAL PLAN\n${secELines.join('\n')}`);
+        sections.push(`E. ADDITIONAL NOTES, CLINICAL SCREENING & INTERVENTION PLAN\n${secELines.join('\n')}`);
       }
 
       const finalOut = document.getElementById('final-otia-textarea');
@@ -5614,6 +5672,20 @@
 
       document.getElementById('d_prio1').value = rec.dPrio1 || '';
       document.getElementById('d_prio2').value = rec.dPrio2 || '';
+      document.getElementById('d_prio3').value = rec.dPrio3 || '';
+      const feSet = new Set(rec.feChecked || []);
+      document.querySelectorAll('.fe-cb').forEach(cb => { cb.checked = feSet.has(cb.value); });
+
+      document.getElementById('e_physical').value = rec.ePhysical || '';
+      document.getElementById('e_psychosocial').value = rec.ePsychosocial || '';
+      try { state.handSkills = JSON.parse(rec.handSkillsJson || '{}'); } catch { state.handSkills = {}; }
+      renderHandSkills();
+      document.getElementById('e_tests').value = rec.eTests || '';
+      document.getElementById('e_stg').value = rec.eStg || '';
+      document.getElementById('e_ltg').value = rec.eLtg || '';
+      document.getElementById('e_plan').value = rec.ePlan || '';
+      document.getElementById('e_therapist').value = rec.eTherapist || 'OT Ezlyana';
+
       // Restore Pain Scale (supports Pre/During/Post & legacy single score)
       document.getElementById('pain_location').value = rec.painLocation || '';
       document.getElementById('pain_quality').value = rec.painQuality || '';
